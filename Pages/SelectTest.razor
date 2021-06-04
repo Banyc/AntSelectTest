@@ -1,0 +1,54 @@
+@page "/"
+@using AntSelectTest.Models
+
+<Select @bind-Value="@this.SelectedModel"
+        Placeholder="Select an item..."
+        Style="width: 240px;"
+        TItemValue="MyModel"
+        TItem="MyModel">
+    <SelectOptions>
+        @if (this.Models != null)
+        {
+            @foreach (var item in this.Models)
+            {
+                @* `TItem` and `TItemValue` cannot be `RuleGroup` since updating `Select.Value` will not overwrites the old
+                    value *@
+                <SelectOption @key="item"
+                              TItemValue="MyModel"
+                              TItem="MyModel"
+                              Value=@item
+                              Label=@item.Name />
+            }
+        }
+    </SelectOptions>
+</Select>
+
+<Input @bind-Value="this.NewName" Placeholder="New item name"/>
+<Button OnClick="OnAddItem">Add item</Button>
+<p><text>when click "Add item" button, the select is expected to switch to the new item.</text></p>
+
+@code
+{
+    private List<MyModel> Models { get; set; }
+    private MyModel SelectedModel { get; set; }
+    private string NewName { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        this.Models = new();
+        this.Models.Add(new(){ Name = "first item" });
+        this.Models.Add(new(){ Name = "second item" });
+        this.Models.Add(new(){ Name = "third item" });
+    }
+
+    private void OnAddItem()
+    {
+        var newModel = new MyModel()
+        {
+            Name = this.NewName
+        };
+        this.Models.Add(newModel);
+        // make the select display the new item
+        this.SelectedModel = newModel;
+    }
+}
